@@ -13,6 +13,6 @@ app.use('/', router);
 
 db.connection.once('open', () => console.log("connected to db")).on("error", (err) => console.log("error connecting db -->", err))
 
-app.listen(3001, () => {
+app.listen(3005, () => {
     console.log("Server connected to localhost!");
 });
