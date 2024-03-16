@@ -1,18 +1,10 @@
-// Importing express module
 import express from "express";
-
-// Importing sub-routers
-import productRouter from './products.mjs';
-import adsRouter from './ads.mjs';
 import UserRouter from "./users.mjs";
-
-// Creating an instance of Express Router
+import AdsRouter from "./ads.mjs";
 const Router = express.Router();
 
-// Using sub-routers for different routes
-Router.use('/products', productRouter);
-Router.use('/ads', adsRouter);
-Router.use('/user', UserRouter);
+Router.use('/user', UserRouter)
+Router.use('/ads', AdsRouter)
 
-// Exporting the main router
-export default Router;
+
+export default Router

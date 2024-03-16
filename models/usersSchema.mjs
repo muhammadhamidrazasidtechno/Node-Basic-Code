@@ -32,6 +32,7 @@ userSchema.methods.comparePassword = function (password) {
 };
 
 
+
 userSchema.pre('save', function (next) {
     const user = this
 

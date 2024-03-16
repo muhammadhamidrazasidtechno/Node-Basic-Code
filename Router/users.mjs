@@ -1,69 +1,66 @@
-import  express  from "express";
+import express from "express";
 import Users from "../models/usersSchema.mjs";
 import verifyToken from "../middlewares/verifyToken.mjs";
-
-
 const Router = express.Router();
 
-
-
-Router.get('/',async (req,res)=> {
-    try{
-        const users = await Users.find()
-    res.send({ message: "Data fetched successfully", data: users })
-
-    }catch(e){
-    res.send({ message: e.message })
-
+Router.post('/add', async (req, res) => {
+    try {
+        await Users.create(req.body)
+        // await user.save()
+        res.send({ message: "User registered successfully!" })
+    } catch (e) {
+        res.send({ message: e.message })
     }
 })
 
-
-Router.post('/add',async (req,res) => {
-try{
-    const user = new Users(req.body)
-    await user.save()
-    res.send({ message: "User registered successfully!" })
-}catch(e){
-    res.send({ message: e.message })
-}
-})
-
-
-Router.put('/login', async (req, res) => {
+Router.put('/login',async (req, res) => {
     try {
-        const { email, password } = req.body
-
-        //Step 1: Check if email exists
-        const user = await Users.findOne({ email })
-    
+        const user = await Users.findOne({ email: req.body.email })
         if (!user) {
-            res.status(404).send({ message: 'Email not found!' })
-            return
+            res.status(401).send({ message: "User not found!" })
+            return;
         }
-    
-        //Step 2: Compare Password
-        const isCorrectPassword = user.comparePassword(password)
+        const isCorrectPassword = user.comparePassword(req.body.password);
     
         if (!isCorrectPassword) {
             res.status(404).send({ message: 'Password is incorrect!' })
             return
         }
     
-        //Step 3: Generate Token
+
+        
+        
         const token = user.generateToken()
         user.tokens.push(token)
         await user.save()
-    
-        res.send({ message: 'User logged in successfully!', token })
+        res.send({message:"User Loged In Suceessfully" + token})
+
+
+
     } catch (e) {
-        res.status(400).send({ message: e.message })
+        res.send({ message: e.message })
     }
 })
-Router.put('/logout', verifyToken, async (req, res) => {
-    await Users.findByIdAndUpdate(req.userId, { $pull: { tokens: req.tokenToRemove } })
+Router.put('/forget', verifyToken ,async (req, res) => {
+    let token = req.headers.authorization
+    token = token.slice(7)
+    console.log(token)
+    console.log(req.headers.authorization)
+    try {
+        const user = await Users.findOne({ email: req.body.email })
+
+        await Users.findByIdAndUpdate(user._id, { $pull: { tokens: token } })
     res.send({ message: 'Logged out successfully!' })
+    } catch (e) {
+        res.send({ message: e.message })
+    }
 })
-
-
+Router.get('/', async (req, res) => {
+    try {
+        const data = await Users.find()
+        res.json({ ok: data })
+    } catch (e) {
+        res.send(e);
+    }
+})
 export default Router;
